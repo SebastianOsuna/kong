@@ -120,7 +120,7 @@ function Kong.init()
   local config = assert(conf_loader(conf_path))
 
   local events = Events() -- retrieve node plugins
-  local dao = DAOFactory(config, events) -- instanciate long-lived DAO
+  local dao = assert(DAOFactory.new(config, events)) -- instanciate long-lived DAO
   assert(dao:run_migrations()) -- migrating in case embedded in custom nginx
 
   -- populate singletons
