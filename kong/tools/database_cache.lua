@@ -59,6 +59,16 @@ function _M.get(key)
   return DATA[key]
 end
 
+function _M.incr(key, value)
+  local n = DATA[key]
+  if not tonumber(n) then
+    return nil, "Counter not initialized"
+  end
+  local newval = n + value
+  DATA[key] = newval
+  return newval
+end
+
 function _M.delete(key)
   DATA[key] = nil
 end
@@ -85,7 +95,6 @@ function _M.get_or_set(key, cb)
   local value = _M.get(key)
   if value then return value end
 
-  --[[
   local lock, err = resty_lock:new("cache_locks", {
     exptime = 10
   })
@@ -95,11 +104,10 @@ function _M.get_or_set(key, cb)
   end
 
   -- The value is missing, acquire a lock
-  local elapsed, err = lock:lock(key)
+  local elapsed, err = lock:lock(ngx.worker.id()..key)
   if not elapsed then
     ngx_log(ngx.ERR, "failed to acquire cache lock: ", err)
   end
-  --]]
 
   -- Lock acquired. Since in the meantime another worker may have
   -- populated the value we have to check again
@@ -112,12 +120,10 @@ function _M.get_or_set(key, cb)
     end
   end
 
-  --[[
   local ok, err = lock:unlock()
   if not ok and err then
     ngx_log(ngx.ERR, "failed to unlock: ", err)
   end
-  --]]
   
   return value
 end
