@@ -2,7 +2,7 @@ local version = setmetatable({
   major = 0,
   minor = 9,
   patch = 2,
-  pre_release = nil
+  pre_release = "cache1"
 }, {
   __tostring = function(t)
     return string.format("%d.%d.%d%s", t.major, t.minor, t.patch,
