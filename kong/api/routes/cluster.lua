@@ -61,7 +61,9 @@ return {
       local message_t = self.params
 
       -- The type is always upper case
-      if message_t.type then
+      if not message_t or not message_t.type then
+        return responses.send_HTTP_BAD_REQUEST()
+      else
         message_t.type = string_upper(message_t.type)
       end
 
